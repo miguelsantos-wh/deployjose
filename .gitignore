@@ -1,0 +1,7 @@
+*.log
+*.logs
+
+
+#Carpeta de pycharm
+.idea/
+__pycache__/
