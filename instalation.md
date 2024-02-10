@@ -23,13 +23,13 @@
     ./manage.py makemigrations
 ## Paso 8: Hacer la migracion
     ./manage.py migrate
-## Paso 8: Instalar supervisor y gninx
+## Paso 9: Instalar supervisor y gninx
     sudo apt update
     sudo apt install supervisor
     sudo systemctl status supervisor
     sudo apt install nginx
     sudo systemctl status nginx
-## Paso 8: Configurar supervisor
+## Paso 10: Configurar supervisor
     sudo nano /etc/supervisor/conf.d/deployjose.conf
     
     [program:deployjose]
@@ -39,7 +39,7 @@
     autorestart=true
     stderr_logfile=/home/miguel-santos-wh/repositorio/deployjose/.log/err.log
     stdout_logfile=/home/miguel-santos-wh/repositorio/deployjose/.log/out.log
-## Paso 10: Configurar nginx
+## Paso 11: Configurar nginx
     sudo nano /etc/nginx/sites-enabled/deployjose
     
     server {
@@ -56,5 +56,6 @@
             root /home/miguel-santos-wh/repositorio/deployjose;
         }
     }
-    
+## Paso 12: Configuracion con celery
+    celery worker -A my_deploy -l info
     
