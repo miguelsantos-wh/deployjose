@@ -2,6 +2,11 @@
 {% block title %} LISTA DE PERSONAS {% endblock %}
 {% block content %}
 <table class="table table-bordered">
+{% if message %}
+    <div class="alert alert-success" role="alert">
+        {{ message }}
+    </div>
+{% endif %}
     <thead>
         <tr>
             <td>#</td>

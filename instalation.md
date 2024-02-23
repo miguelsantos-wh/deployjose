@@ -39,6 +39,9 @@
     autorestart=true
     stderr_logfile=/home/miguel-santos-wh/repositorio/deployjose/.log/err.log
     stdout_logfile=/home/miguel-santos-wh/repositorio/deployjose/.log/out.log
+
+    sudo supervisorctl reread
+    sudo supervisorctl start deployjose
 ## Paso 11: Configurar nginx
     sudo nano /etc/nginx/sites-enabled/deployjose
     
@@ -58,4 +61,6 @@
     }
 ## Paso 12: Configuracion con celery
     celery worker -A my_deploy -l info
+## Paso 13: Activar servicio
+    sudo supervisorctl start deployjose
     
