@@ -1,5 +1,29 @@
+## Actualizar apt e instalar git
+    sudo apt-get update
 ## Paso 1: Hacer git clone
     git clone https://github.com/miguelsantos-wh/deployjose.git
+## Pas 1.1: Instalar paquetes necesarios de python
+    sudo add-apt-repository ppa:deadsnakes/ppa
+    sudo apt-get update
+    sudo apt-get install python3.6
+    sudo apt-get update
+    sudo apt-get install python3-virtualenv
+
+    sudo apt-get install build-essential libssl-dev libffi-dev python-dev
+    sudo apt install python3-pip
+    sudo apt install -y python3-venv
+
+    sudo pip3 install pipenv
+
+## Paso 1.2 Instalar Redis
+    sudo apt update
+    sudo apt install redis-server
+    sudo nano /etc/redis/redis.conf
+    bind 127.0.0.1 ::1 ip_privada
+    requirepass foobared
+    umnxHeevy7xSnlRt/fcM5gkgiHleVCqBxkDy5zj6DLUdqjV4zKO3KCfgk2NW2xFu3rVN1TFO6KiuWmSN
+    sudo systemctl restart redis.service
+    sudo systemctl stop redis.service
 ## Paso 2: Crear entorno
     cd deployjose
     virtualenv venv -p=3.6
@@ -18,6 +42,7 @@
     \c deployjose
     GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO deployjose;
     GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO deployjose;
+    ALTER DATABASE deployjose OWNER TO deployjose;
     exit
 ## Paso 7: Crear migraciones desde la carpeta del proyecto
     ./manage.py makemigrations
@@ -29,18 +54,34 @@
     sudo systemctl status supervisor
     sudo apt install nginx
     sudo systemctl status nginx
+## Paso 9: Crear logs
+    cd deployjose
+    mkdir .log
+    cd .log
+    sudo nano err.log
+    sudo nano out.log
+    sudo nano celery_err.log
+    sudo nano celery_out.log
+    sudo nano deployjose_err.log
+    sudo nano deployjose_out.log
+    sudo nano flower_err.log
+    sudo nano flower_err.log
 ## Paso 10: Configurar supervisor
     sudo nano /etc/supervisor/conf.d/deployjose.conf
     
     [program:deployjose]
-    command=/home/miguel-santos-wh/repositorio/deployjose/venv/bin/gunicorn -c /home/miguel-santos-wh/repositorio/deployjose/gunicorn_config.py m>
-    directory=/home/miguel-santos-wh/repositorio/deployjose
+    command=/home/ubuntu/deployjose/venv/bin/gunicorn -c /home/ubuntu/deployjose/gunicorn_config.py --workers 6 my_deploy.wsgi:application
+    directory=/home/ubuntu/deployjose
     autostart=true
     autorestart=true
-    stderr_logfile=/home/miguel-santos-wh/repositorio/deployjose/.log/err.log
-    stdout_logfile=/home/miguel-santos-wh/repositorio/deployjose/.log/out.log
+    stderr_logfile=/home/ubuntu/deployjose/.log/err.log
+    stdout_logfile=/home/ubuntu/deployjose/.log/out.log
+
+    startsecs=0
+    stopwaitsecs = 600
 
     sudo supervisorctl reread
+    sudo supervisorctl update
     sudo supervisorctl start deployjose
 ## Paso 11: Configurar nginx
     sudo nano /etc/nginx/sites-enabled/deployjose
@@ -56,11 +97,15 @@
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location /static/ {
-            root /home/miguel-santos-wh/repositorio/deployjose;
+            root /home/ubuntu/deployjose;
         }
     }
+
+    sudo systemctl restart nginx
 ## Paso 12: Configuracion con celery
     celery worker -A my_deploy -l info
+    celery worker -A my_deploy -Q deployjose -n deployjose@worker -l INFO -E
+    celery -A my_deploy flower --port=6655 --auto_refresh=True
 ## Paso 13: Activar servicio
     sudo supervisorctl start deployjose
     
